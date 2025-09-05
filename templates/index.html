@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Valetudo Heatmap</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #eee; }
+        #heatmap { border: 1px solid #444; background: #111; }
+    </style>
+</head>
+<body>
+    <h1>Valetudo Heatmap</h1>
+    <canvas id="heatmap" width="600" height="600"></canvas>
+    <script>
+    async function fetchHeatmap() {
+        const res = await fetch('/api/heatmap');
+        const data = await res.json();
+        return data.heatmap;
+    }
+    function drawHeatmap(points) {
+        const canvas = document.getElementById('heatmap');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Find bounds
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (const p of points) {
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+        }
+        const scaleX = canvas.width / (maxX - minX + 1);
+        const scaleY = canvas.height / (maxY - minY + 1);
+        for (const p of points) {
+            const x = (p.x - minX) * scaleX;
+            const y = (p.y - minY) * scaleY;
+            const alpha = Math.min(1, p.value / 10);
+            ctx.fillStyle = `rgba(255,0,0,${alpha})`;
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
+    async function main() {
+        const points = await fetchHeatmap();
+        drawHeatmap(points);
+    }
+    main();
+    </script>
+</body>
+</html>

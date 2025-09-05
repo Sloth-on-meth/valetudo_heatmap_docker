@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 import db
 import threading
@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Valetudo Heatmap Server is running.'
+    return render_template('index.html')
 
 @app.route('/api/heatmap', methods=['GET'])
 def get_heatmap():
